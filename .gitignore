@@ -606,3 +606,5 @@ FodyWeavers.xsd
 !**/umbraco/Data/packages
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,visualstudiocode,umbraco,node
+
+**/App_Plugins/*
