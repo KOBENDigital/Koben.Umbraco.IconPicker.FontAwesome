@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<PackageId>Koben.Umbraco.IconPicker.FontAwesome</PackageId>
+		<Description>Umbraco backoffice package for the Font Awesome Icon Picker plugin</Description>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Koben.Umbraco.IconPicker.FontAwesome.Core\Koben.Umbraco.IconPicker.FontAwesome.Core.csproj" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+		<None Include="pack\_._" Pack="true" PackagePath="lib\net10.0\" />
+		<None Include="build\Koben.Umbraco.IconPicker.FontAwesome.targets" Pack="true" PackagePath="build\Koben.Umbraco.IconPicker.FontAwesome.targets" />
+		<None Include="build\Koben.Umbraco.IconPicker.FontAwesome.targets" Pack="true" PackagePath="buildTransitive\Koben.Umbraco.IconPicker.FontAwesome.targets" />
+		<None Include="public\umbraco-package.json" Pack="true" PackagePath="App_Plugins\Koben.Umbraco.IconPicker.FontAwesome\" />
+		<None Include="dist\**\*" Exclude="dist\umbraco-package.json" Pack="true" PackagePath="App_Plugins\Koben.Umbraco.IconPicker.FontAwesome\%(RecursiveDir)" />
+	</ItemGroup>
+
+	<Target Name="BuildBackofficeAssets" BeforeTargets="Pack">
+		<Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)" />
+	</Target>
+
+	<Target Name="EnsureBackofficeAssetsExist" BeforeTargets="Pack">
+		<Error Condition="!Exists('$(MSBuildProjectDirectory)\dist\index.js')" Text="Backoffice assets are missing. Run `npm run build` in Koben.Umbraco.IconPicker.FontAwesome.Backoffice before packing." />
+	</Target>
+
+</Project>
+

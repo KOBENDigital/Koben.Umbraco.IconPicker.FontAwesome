@@ -1,0 +1,191 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.HomePage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+	Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Font Awesome Icon Picker for Umbraco 17</title>
+	<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
+	<script src="https://kit.fontawesome.com/a5b64be81e.js" crossorigin="anonymous"></script>
+	<style>
+		body { background: #fff; color: #24292f; }
+		.page { max-width: 960px; }
+		.markdown-body h1, .markdown-body h2, .markdown-body h3 { font-weight: 600; line-height: 1.25; }
+		.markdown-body h1, .markdown-body h2 { padding-bottom: .3rem; border-bottom: 1px solid #d8dee4; }
+		.markdown-body p, .markdown-body li { line-height: 1.6; }
+		pre { margin: 1rem 0; padding: 1rem; white-space: pre-wrap; word-break: break-word; background: #f6f8fa; border: 1px solid #d8dee4; border-radius: .375rem; }
+		.icon-example { min-height: 8rem; display: grid; place-items: center; border: 1px solid #d8dee4; border-radius: .375rem; background: #f6f8fa; }
+		.icon-example i { font-size: 3rem; }
+		.icon-example code { font-size: .8rem; }
+	</style>
+</head>
+<body>
+	<main class="container page py-5">
+		<article class="markdown-body">
+			<h1 class="mb-4">Font Awesome Icon Picker for Umbraco 17</h1>
+			<p>An Umbraco 17 property editor for selecting Font Awesome Free, Pro, and Kit custom icons. Editors search the Font Awesome catalog in the backoffice and the saved content value is a complete CSS class string, such as <code>fa-solid fa-house</code>.</p>
+			<p>Non-Classic families include the family class, for example <code>fa-sharp fa-solid fa-house</code>.</p>
+
+			<h2 class="mt-5">TL;DR</h2>
+			<ol>
+				<li>Install <code>Koben.Umbraco.IconPicker.FontAwesome</code> and restart your Umbraco 17 application.</li>
+				<li>In <strong>Settings &gt; Data Types</strong>, create a data type using <strong>Font Awesome Icon Picker</strong>. Select <strong>Font Awesome Free</strong> and a matching release to use it without credentials.</li>
+				<li>Load matching Font Awesome assets on the public site and render the saved class string.</li>
+				<li>For a <strong>Pro Kit</strong>, configure the Font Awesome account API token server-side, restart the application, then select a published Kit in the data type.</li>
+			</ol>
+<pre><code>dotnet add package Koben.Umbraco.IconPicker.FontAwesome</code></pre>
+
+			<section class="alert alert-light border my-4" aria-labelledby="backoffice-heading">
+				<h2 id="backoffice-heading" class="h5 border-0 pb-0 mb-3">Try it in the backoffice</h2>
+				<p class="mb-3">The sample Home page has one property for each bundled data type. Choose an icon for each property in the Umbraco backoffice, publish the page, and return here to see the saved class strings rendered.</p>
+				<a class="btn btn-primary btn-sm" href="/umbraco">Open backoffice</a>
+			</section>
+
+			<h2 class="mt-5">Selected icons</h2>
+			<div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+				@await IconExample("Font Awesome Free 6.7.2", Model.FontAwesomeFree672Icon, "No Free 6.7.2 icon selected")
+				@await IconExample("Font Awesome Free 7.2.0", Model.FontAwesomeFree720Icon, "No Free 7.2.0 icon selected")
+				@await IconExample("Font Awesome Pro Kit", Model.FontAwesomeProKitIcon, "No Pro Kit icon selected")
+			</div>
+
+			<h2 class="mt-5">Features</h2>
+			<ul>
+				<li>Font Awesome Free 6.7.2 and 7.2.0 catalogs.</li>
+				<li>Font Awesome Pro through a selected hosted Kit, including subsets, entitlements, and uploaded custom icons.</li>
+				<li>Fuzzy search through the Font Awesome GraphQL API, filters, allowlists, and native Umbraco pagination.</li>
+				<li>Existing values can be previewed, changed, cleared, or safely preserved after a policy change.</li>
+				<li>Read-only property support and <code>string?</code> Models Builder output.</li>
+			</ul>
+
+			<h2 class="mt-5">Requirements</h2>
+			<ul>
+				<li>Umbraco CMS 17 and .NET 10.</li>
+				<li>A Font Awesome API token only when using Pro Kits.</li>
+				<li>A published hosted Font Awesome Kit for Pro and custom-icon previews.</li>
+			</ul>
+			<p>Font Awesome Free browsing does not require a token.</p>
+
+			<h2 class="mt-5">Run the included Web project</h2>
+			<p>The repository includes <code>src/Web</code>, a small Umbraco 17 sample site. Its uSync export creates the Free 6.7.2, Free 7.2.0, and Pro Kit data types, a Home Page document type and template, and a published Home page. It deliberately does not include a Font Awesome account token or a Kit ID.</p>
+			<p>Configure the database connection string and, only when testing Pro Kits, the Font Awesome account API token using the Web project's existing User Secrets ID:</p>
+<pre><code>dotnet user-secrets set --project src/Web "ConnectionStrings:umbracoDbDSN" "Server=(localdb)\MSSQLLocalDB;Database=FontAwesomeIconPicker;Integrated Security=True;TrustServerCertificate=True"
+dotnet user-secrets set --project src/Web "Koben:FontAwesomeIconPicker:ApiToken" "YOUR_FONT_AWESOME_API_TOKEN"
+
+dotnet run --project src/Web/Web.csproj</code></pre>
+			<p>On first boot, complete the Umbraco installer if shown and then sign in to the backoffice. uSync imports the sample schema and content from <code>src/Web/uSync/v17</code>. Open the Pro Kit data type and select a published Kit belonging to the same Font Awesome account as the configured API token. This sample view uses a fixed Kit embed for demonstration; replace it with the embed for your selected Kit before deployment.</p>
+
+			<h2 class="mt-5">Server configuration</h2>
+			<p>The Font Awesome account API token belongs to the installation, not to a data type. Store it in user secrets, an environment variable, or a secret store.</p>
+<pre><code>{
+  "Koben": {
+    "FontAwesomeIconPicker": {
+      "ApiToken": "YOUR_FONT_AWESOME_API_TOKEN"
+    }
+  }
+}</code></pre>
+			<p>The equivalent environment variable is <code>Koben__FontAwesomeIconPicker__ApiToken</code>. Do not put this account token in templates, client-side configuration, data type configuration, or source control.</p>
+
+			<h3>Available options</h3>
+			<div class="table-responsive">
+				<table class="table table-sm">
+					<thead><tr><th scope="col">Setting</th><th scope="col">Default</th><th scope="col">Purpose</th></tr></thead>
+					<tbody>
+						<tr><td><code>ApiToken</code></td><td>empty</td><td>Account API token for Pro Kit discovery and search.</td></tr>
+						<tr><td><code>GraphQlEndpoint</code></td><td><code>https://api.fontawesome.com</code></td><td>Font Awesome GraphQL endpoint.</td></tr>
+						<tr><td><code>TokenEndpoint</code></td><td><code>https://api.fontawesome.com/token</code></td><td>Account-token exchange endpoint.</td></tr>
+						<tr><td><code>FreeVersion6</code> / <code>FreeVersion7</code></td><td>6.7.2 / 7.2.0</td><td>Supported bundled Free catalog versions.</td></tr>
+						<tr><td><code>InitialBrowseWindowSize</code></td><td>50</td><td>Maximum initial browse results; valid values are 24–50.</td></tr>
+						<tr><td><code>SearchWindowSize</code></td><td>500</td><td>Maximum ranked results materialised before filtering and paging.</td></tr>
+						<tr><td><code>FreshCacheMinutes</code> / <code>StaleCacheMinutes</code></td><td>5 / 60</td><td>Normal and maximum stale catalog cache durations.</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<p>Do not change a Free version unless the corresponding preview dependencies are updated to the same exact version.</p>
+
+			<h2 class="mt-5">Font Awesome API token and scopes</h2>
+			<p>Create the API token from the Font Awesome account that owns the Kits. The exchanged token must include <code>public</code> for public catalog metadata and <code>kits_read</code> for Kit discovery, subset metadata, official Kit search, and custom-upload search. If the data type is Free-only, omit <code>ApiToken</code>.</p>
+
+			<h2 class="mt-5">Pro Kit configuration</h2>
+			<ol>
+				<li>Create or choose a Kit in the same Font Awesome account as the API token.</li>
+				<li>Set its license to Pro, choose the required Font Awesome version and technology, and configure its icon selection.</li>
+				<li>Add required custom uploaded icons, publish the Kit, and add every Umbraco backoffice host to its allowed domains.</li>
+				<li>In the data type, select the published Kit. The picker uses the Kit as its source of truth.</li>
+			</ol>
+			<p>Kit subsets restrict what editors can select even if the data type policy is otherwise unrestricted. Loading a hosted Kit in the backoffice for previews can count as a Kit pageview.</p>
+
+			<h3>Domains and local development</h3>
+			<ul>
+				<li>Add production, staging, and test backoffice hosts to the Kit domain list. Plain <code>localhost</code> is allowed by Font Awesome by default.</li>
+				<li>For local subdomains, use a reserved <code>.test</code> domain, map it to <code>127.0.0.1</code>, and add the domain or wildcard to the Kit.</li>
+				<li>Allow the Kit resources required by Font Awesome in a restrictive Content Security Policy.</li>
+			</ul>
+
+			<h2 class="mt-5">Data type selection policy</h2>
+			<p>Each data type independently configures its catalog source, Free release or Pro Kit, allowed families/packs, allowed styles, icon allowlist, and official/custom inclusion. Empty family, style, or icon constraints mean unrestricted within the selected catalog.</p>
+			<p>The policy is an editor/design-system guardrail, not a security boundary. A value saved before a policy change remains intact and is shown with a warning until an editor replaces or clears it.</p>
+
+			<h2 class="mt-5">Stored value and Models Builder</h2>
+			<p>The property editor uses Umbraco's built-in <code>Umbraco.Plain.String</code> schema. No custom property value converter is installed, so a property named <code>icon</code> produces a nullable string value.</p>
+<pre><code>public virtual string? Icon =&gt; this.Value&lt;string&gt;("icon");
+
+var iconClass = Model.Icon; // "fa-solid fa-house"</code></pre>
+
+			<h2 class="mt-5">Rendering on the public site</h2>
+			<p>This package does not load Font Awesome assets on the public website. The consuming site must load assets matching the data type catalog. For a Pro Kit, put its current embed code in the page <code>&lt;head&gt;</code>; for Free, load matching Free CSS, JavaScript, or self-hosted assets.</p>
+<pre><code>&lt;i class="fa-solid fa-house" aria-hidden="true"&gt;&lt;/i&gt;</code></pre>
+			<p>For a meaningful standalone icon, provide an accessible name on its owning element. Decorative icons should remain hidden from assistive technology. Do not pair a Free 6 data type with only Free 7 assets, or the reverse, unless the application's compatibility policy explicitly supports it.</p>
+
+			<h2 class="mt-5">Search, filtering, and caching</h2>
+			<p>The Font Awesome API supplies ranked fuzzy search results. An empty, unconstrained initial browse fetches at most 50 candidates. Typed and policy-constrained searches retain the larger 500-candidate window, apply the policy, and then page the filtered results at 24 results per page.</p>
+			<p>Kit metadata, catalog windows, and the exchanged access token use Umbraco's process-local runtime cache. During a short upstream outage, a still-available stale catalog window is labelled in the UI. Existing content can always be saved without contacting Font Awesome.</p>
+
+			<h2 class="mt-5">Troubleshooting</h2>
+			<h3>Pro Kits do not appear</h3>
+			<ul><li>Confirm <code>Koben:FontAwesomeIconPicker:ApiToken</code> is configured, belongs to the Kit-owning account, and grants <code>kits_read</code>.</li><li>Restart the application after changing secret configuration.</li></ul>
+			<h3>A Pro or custom icon does not appear</h3>
+			<ul><li>Publish the Kit and ensure its subset and the data type policy allow the icon/style.</li><li>Confirm the Kit is permitted on the current backoffice domain and inspect CSP and browser network errors.</li><li>Hard-refresh the backoffice after changing Kit technology or publishing a new release.</li></ul>
+			<h3>Public page shows an empty square</h3>
+			<p>Load matching public Font Awesome assets, confirm the selected Kit includes the icon, and ensure the loaded major version matches the data type.</p>
+
+			<h2 class="mt-5">Development</h2>
+<pre><code>cd src/Koben.Umbraco.IconPicker.FontAwesome.Backoffice
+npm install
+npm run build
+
+cd ..
+dotnet build Koben.Umbraco.IconPicker.FontAwesome.slnx
+dotnet pack Koben.Umbraco.IconPicker.FontAwesome.Backoffice/Koben.Umbraco.IconPicker.FontAwesome.Backoffice.csproj</code></pre>
+			<p>The local <code>Web</code> project references both package projects for backoffice validation. Its uSync export provisions the sample schema and Home page, but deliberately leaves the Pro Kit ID blank; select the installation's own Kit in the data type after startup.</p>
+
+			<h2 class="mt-5">Security</h2>
+			<ul>
+				<li>The account API token and exchanged access token remain server-side.</li>
+				<li>Search requests are authenticated through Umbraco backoffice authorization.</li>
+				<li>External responses are mapped to package-owned response models and tokens are not written to application logs.</li>
+				<li>Data type Kit IDs are public Kit identifiers for Font Awesome embed URLs, not account API credentials.</li>
+			</ul>
+
+			<h2 class="mt-5">License</h2>
+			<p>The package is distributed under the MIT license. Font Awesome icons, Kits, services, and Pro content remain subject to Font Awesome's licenses and subscription terms.</p>
+		</article>
+	</main>
+</body>
+</html>
+
+@{
+	Task<IHtmlContent> IconExample(string name, string? iconClass, string emptyMessage)
+	{
+		var encodedIconClass = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(iconClass ?? string.Empty);
+		var content = string.IsNullOrWhiteSpace(iconClass)
+			? $"<code>{emptyMessage}</code>"
+			: $"<i class=\"{encodedIconClass} fa-2xl\" aria-hidden=\"true\"></i><code class=\"mt-2\">{encodedIconClass}</code>";
+
+		return Task.FromResult<IHtmlContent>(new HtmlString($"<div class=\"col\"><div class=\"icon-example p-3 text-center\">{content}</div><p class=\"small text-body-secondary mt-2 mb-0\">{name}</p></div>"));
+	}
+}

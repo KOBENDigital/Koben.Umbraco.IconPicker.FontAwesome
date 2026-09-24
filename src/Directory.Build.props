@@ -1,0 +1,15 @@
+﻿<Project>
+	<PropertyGroup>
+		<Title>Koben.Umbraco.IconPicker.FontAwesome</Title>
+		<Authors>Koben Digital</Authors>
+		<Company>Koben Digital</Company>
+		<Description>A Font Awesome Free and Pro icon picker property editor for Umbraco 17.</Description>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Umbraco;Font Awesome;Icon Picker;Property Editor;Backoffice</PackageTags>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Version>17.0.0</Version>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
+</Project>

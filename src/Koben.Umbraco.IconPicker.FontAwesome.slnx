@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../.gitignore" />
+    <File Path="../CONTEXT.md" />
+    <File Path="../LICENSE.MD" />
+    <File Path="../README.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="Koben.Umbraco.IconPicker.FontAwesome.Backoffice/Koben.Umbraco.IconPicker.FontAwesome.Backoffice.csproj" Id="daa5d20d-53ad-488a-b65f-9c9df5f490d0" />
+  <Project Path="Koben.Umbraco.IconPicker.FontAwesome.Core/Koben.Umbraco.IconPicker.FontAwesome.Core.csproj" Id="6ea15097-0afd-4274-bc8b-01db0cc636a1" />
+  <Project Path="Koben.Umbraco.IconPicker.FontAwesome.Tests/Koben.Umbraco.IconPicker.FontAwesome.Tests.csproj" />
+  <Project Path="Web/Web.csproj" />
+</Solution>

@@ -1,0 +1,28 @@
+﻿<Project>
+
+	<PropertyGroup>
+		<FontAwesomeIconPickerAppPluginsFolder>$(MSBuildProjectDirectory)\App_Plugins\Koben.Umbraco.IconPicker.FontAwesome</FontAwesomeIconPickerAppPluginsFolder>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FontAwesomeIconPickerPackageAsset Include="$(MSBuildThisFileDirectory)..\App_Plugins\Koben.Umbraco.IconPicker.FontAwesome\**\*" />
+	</ItemGroup>
+
+	<Target Name="FontAwesomeIconPicker_CopyAppPlugins" BeforeTargets="Build">
+		<Message Importance="Low" Text="Copying Koben.Umbraco.IconPicker.FontAwesome App_Plugins assets into the consuming project." />
+		<MakeDir Directories="$(FontAwesomeIconPickerAppPluginsFolder)" />
+		<Copy
+			SourceFiles="@(FontAwesomeIconPickerPackageAsset)"
+			DestinationFiles="@(FontAwesomeIconPickerPackageAsset->'$(FontAwesomeIconPickerAppPluginsFolder)\%(RecursiveDir)%(Filename)%(Extension)')"
+			SkipUnchangedFiles="true" />
+		<ItemGroup>
+			<FileWrites Include="@(FontAwesomeIconPickerPackageAsset->'$(FontAwesomeIconPickerAppPluginsFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="FontAwesomeIconPicker_CleanAppPlugins" AfterTargets="Clean">
+		<RemoveDir Directories="$(FontAwesomeIconPickerAppPluginsFolder)" Condition="Exists('$(FontAwesomeIconPickerAppPluginsFolder)')" />
+	</Target>
+
+</Project>
+
