@@ -1,0 +1,89 @@
+name: Release package
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and publish NuGet package
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: src/Koben.Umbraco.IconPicker.FontAwesome.Backoffice/package-lock.json
+
+      - name: Validate release tag
+        shell: pwsh
+        run: |
+          $packageVersion = "${{ github.ref_name }}"
+
+          if ($packageVersion -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$') {
+            throw "Release tags must be valid NuGet versions, for example '17.0.0' or '17.1.0-preview.1'."
+          }
+
+          "PACKAGE_VERSION=$packageVersion" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Install backoffice dependencies
+        working-directory: src/Koben.Umbraco.IconPicker.FontAwesome.Backoffice
+        run: npm ci
+
+      - name: Test backoffice assets
+        working-directory: src/Koben.Umbraco.IconPicker.FontAwesome.Backoffice
+        run: npm test
+
+      - name: Restore .NET dependencies
+        run: dotnet restore src/Koben.Umbraco.IconPicker.FontAwesome.slnx
+
+      - name: Build solution
+        run: dotnet build src/Koben.Umbraco.IconPicker.FontAwesome.slnx --configuration Release --no-restore
+
+      - name: Test .NET projects
+        run: dotnet test src/Koben.Umbraco.IconPicker.FontAwesome.slnx --configuration Release --no-build --no-restore
+
+      - name: Create NuGet package
+        run: >
+          dotnet pack
+          src/Koben.Umbraco.IconPicker.FontAwesome.Backoffice/Koben.Umbraco.IconPicker.FontAwesome.Backoffice.csproj
+          --configuration Release
+          --no-build
+          --no-restore
+          -p:Version="$PACKAGE_VERSION"
+          --output artifacts
+
+      - name: Sign in to NuGet using GitHub OIDC
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USERNAME }}
+
+      - name: Publish to NuGet.org
+        run: >
+          dotnet nuget push "artifacts/*.nupkg"
+          --source https://api.nuget.org/v3/index.json
+          --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}"
+          --skip-duplicate
