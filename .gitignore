@@ -596,14 +596,18 @@ FodyWeavers.xsd
 # SQLite files
 *.sqlite.db*
 
-#ignore umbraco data/views/settings
-**/umbraco/
+# Ignore Umbraco runtime data, views, and settings, but retain the checked-in exceptions below.
+**/umbraco/*
 
-#include default location for modelsbuilder output
-!**/umbraco/models
+# Include the default Models Builder output.
+!**/umbraco/models/
+!**/umbraco/models/**
 
-#include default location for packages
-!**/umbraco/Data/packages
+# Include the default package location.
+!**/umbraco/Data/
+**/umbraco/Data/*
+!**/umbraco/Data/packages/
+!**/umbraco/Data/packages/**
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,visualstudiocode,umbraco,node
 
