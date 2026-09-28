@@ -48,18 +48,14 @@ jobs:
       - name: Test .NET projects
         run: dotnet test src/Koben.Umbraco.IconPicker.FontAwesome.slnx --configuration Release --no-build --no-restore
 
-      - name: Create and validate NuGet package
-        run: >
-          dotnet pack
-          src/Koben.Umbraco.IconPicker.FontAwesome.Backoffice/Koben.Umbraco.IconPicker.FontAwesome.Backoffice.csproj
-          --configuration Release
-          --no-build
-          --no-restore
-          --output artifacts
+      - name: Create and validate NuGet packages
+        run: |
+          dotnet pack src/Koben.Umbraco.IconPicker.FontAwesome.Core/Koben.Umbraco.IconPicker.FontAwesome.Core.csproj --configuration Release --no-build --no-restore --output artifacts
+          dotnet pack src/Koben.Umbraco.IconPicker.FontAwesome.Backoffice/Koben.Umbraco.IconPicker.FontAwesome.Backoffice.csproj --configuration Release --no-build --no-restore --output artifacts
 
       - name: Upload package artifact
         uses: actions/upload-artifact@v4
         with:
-          name: nuget-package
+          name: nuget-packages
           path: artifacts/*.nupkg
           if-no-files-found: error
