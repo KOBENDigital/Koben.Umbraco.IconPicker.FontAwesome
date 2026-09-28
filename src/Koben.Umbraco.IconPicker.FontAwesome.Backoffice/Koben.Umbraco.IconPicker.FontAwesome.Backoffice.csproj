@@ -6,6 +6,7 @@
 		<Description>Umbraco backoffice package for the Font Awesome Icon Picker plugin</Description>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);BuildBackofficeAssets</TargetsForTfmSpecificContentInPackage>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -15,15 +16,15 @@
 		<None Include="build\Koben.Umbraco.IconPicker.FontAwesome.targets" Pack="true" PackagePath="build\Koben.Umbraco.IconPicker.FontAwesome.targets" />
 		<None Include="build\Koben.Umbraco.IconPicker.FontAwesome.targets" Pack="true" PackagePath="buildTransitive\Koben.Umbraco.IconPicker.FontAwesome.targets" />
 		<None Include="public\umbraco-package.json" Pack="true" PackagePath="App_Plugins\Koben.Umbraco.IconPicker.FontAwesome\" />
-		<None Include="dist\**\*" Exclude="dist\umbraco-package.json" Pack="true" PackagePath="App_Plugins\Koben.Umbraco.IconPicker.FontAwesome\%(RecursiveDir)" />
 	</ItemGroup>
 
-	<Target Name="BuildBackofficeAssets" BeforeTargets="Pack">
+	<Target Name="BuildBackofficeAssets">
 		<Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)" />
-	</Target>
-
-	<Target Name="EnsureBackofficeAssetsExist" BeforeTargets="Pack">
-		<Error Condition="!Exists('$(MSBuildProjectDirectory)\dist\index.js')" Text="Backoffice assets are missing. Run `npm run build` in Koben.Umbraco.IconPicker.FontAwesome.Backoffice before packing." />
+		<ItemGroup>
+			<TfmSpecificPackageFile Include="dist\**\*" Exclude="dist\umbraco-package.json">
+				<PackagePath>App_Plugins\Koben.Umbraco.IconPicker.FontAwesome\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+			</TfmSpecificPackageFile>
+		</ItemGroup>
 	</Target>
 
 </Project>
