@@ -4,6 +4,7 @@
 		<Authors>Koben Digital</Authors>
 		<Company>Koben Digital</Company>
 		<Description>A Font Awesome Free and Pro icon picker property editor for Umbraco 17.</Description>
+		<RepositoryUrl>https://github.com/KOBENDigital/Koben.Umbraco.IconPicker.FontAwesome</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Umbraco;Font Awesome;Icon Picker;Property Editor;Backoffice</PackageTags>
 		<TargetFramework>net10.0</TargetFramework>

@@ -6,6 +6,10 @@ An Umbraco property editor package context for finding and selecting icons from 
 
 ### Catalog and access
 
+**Catalog Source**:
+The source a Data Type uses for its Icon Catalog: either a pinned Font Awesome Free release or one selected Pro Kit.
+_Avoid_: License, asset source
+
 **Icon Catalog**:
 The Font Awesome icons available for discovery and selection by an installation, including their supported families and styles.
 _Avoid_: Icon library, icon set
@@ -40,6 +44,10 @@ _Avoid_: API token, secret, account credential
 
 ### Icon selection
 
+**Icon Property**:
+An Umbraco content property using this picker. It holds zero or one Icon Class String.
+_Avoid_: Icon record, icon object
+
 **Icon Identity**:
 The catalog identity of an official or custom icon independent of the family-style variant in which it is rendered. Official and custom icons with the same name have distinct identities.
 _Avoid_: Icon Class String, variant
@@ -53,7 +61,7 @@ One renderable family-and-style form of an Icon Identity, such as Classic Solid 
 _Avoid_: Icon Identity, Icon Class String
 
 **Selection Policy**:
-The Data Type-owned design-system guardrail that limits selectable icon identities and family-style variants. It constrains the supported backoffice picker experience but is not a security boundary.
+The Data Type-owned design-system guardrail that selects a Catalog Source and limits selectable icon identities and family-style variants. It constrains the supported backoffice picker experience but is not a security boundary.
 _Avoid_: Authorization policy, licence entitlement, server validation
 
 **Legacy Icon Value**:
@@ -67,6 +75,6 @@ Domain expert: "No. Every installation has Free Catalog Access by default and ga
 Dev: "What value does a content property expose after an editor selects an icon?"
 Domain expert: "It exposes an Icon Class String such as `fa-solid fa-house`."
 Dev: "Can one Document Type offer fewer icons than another?"
-Domain expert: "Yes. Each Data Type can define its own Selection Policy over the same Icon Catalog."
+Domain expert: "Yes. Each Data Type can define its own Selection Policy, including its Catalog Source. An Icon Property then stores one Icon Class String selected under that policy."
 Dev: "What happens when that policy changes?"
 Domain expert: "Existing content becomes a Legacy Icon Value and is preserved until an editor deliberately chooses an allowed replacement."
