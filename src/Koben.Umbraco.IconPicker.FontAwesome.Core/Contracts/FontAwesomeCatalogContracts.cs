@@ -4,6 +4,7 @@ namespace Koben.Umbraco.IconPicker.FontAwesome.Core.Contracts;
 
 public sealed record FontAwesomeConfigurationResponse(
 		bool ApiTokenConfigured,
+		bool ProKitConfigurationAvailable,
 		IReadOnlyCollection<FontAwesomeFreeReleaseResponse> FreeReleases,
 		IReadOnlyCollection<FontAwesomeKitResponse> Kits,
 		string? Warning = null);

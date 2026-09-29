@@ -17,6 +17,7 @@ export interface FontAwesomeKit {
 
 export interface FontAwesomeConfiguration {
   apiTokenConfigured: boolean;
+  proKitConfigurationAvailable: boolean;
   freeReleases: FontAwesomeFreeRelease[];
   kits: FontAwesomeKit[];
   warning?: string;

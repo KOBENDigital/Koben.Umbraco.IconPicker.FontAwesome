@@ -58,6 +58,7 @@ describe("selection policy editor", () => {
 
     resolveConfiguration({
       apiTokenConfigured: true,
+      proKitConfigurationAvailable: true,
       freeReleases: [],
       kits: [{ token: "saved-kit", name: "Saved Kit", status: "published" }],
     });
@@ -65,5 +66,60 @@ describe("selection policy editor", () => {
     await vi.waitFor(() => {
       expect(element.shadowRoot?.querySelectorAll("select")[1]?.value).toBe("saved-kit");
     });
+  });
+
+  it("shows Pro setup guidance and hides policy fields when no API token is configured", async () => {
+    getConfigurationMock.mockResolvedValue({
+      apiTokenConfigured: false,
+      proKitConfigurationAvailable: false,
+      freeReleases: [],
+      kits: [],
+      warning: "Configure an API token to use Font Awesome Pro Kits.",
+    } satisfies FontAwesomeConfiguration);
+
+    const element = document.createElement("font-awesome-icon-picker-policy-editor");
+    document.body.append(element);
+    await vi.waitFor(() => {
+      expect(element.shadowRoot?.querySelector("select")?.value).toBe("free");
+    });
+
+    expect(element.shadowRoot?.textContent).not.toContain("Configure an API token to use Font Awesome Pro Kits.");
+    expect(element.shadowRoot?.textContent).toContain("Allowed families / packs");
+
+    const sourceSelect = element.shadowRoot?.querySelector("select") as HTMLSelectElement;
+    sourceSelect.value = "kit";
+    sourceSelect.dispatchEvent(new Event("change"));
+    await element.updateComplete;
+
+    expect(element.shadowRoot?.textContent).toContain("Configure an API token to use Font Awesome Pro Kits.");
+    expect(element.shadowRoot?.textContent).toContain("Example app settings");
+    expect(element.shadowRoot?.textContent).toContain("Koben");
+    expect(element.shadowRoot?.textContent).not.toContain("Choose a Kit");
+    expect(element.shadowRoot?.textContent).not.toContain("Allowed families / packs");
+    expect(element.shadowRoot?.querySelector("a")?.href).toBe(
+      "https://github.com/KOBENDigital/Koben.Umbraco.IconPicker.FontAwesome/blob/v17/main/README.md#server-configuration",
+    );
+  });
+
+  it("hides Pro policy fields when the configured token cannot be exchanged", async () => {
+    getConfigurationMock.mockResolvedValue({
+      apiTokenConfigured: true,
+      proKitConfigurationAvailable: false,
+      freeReleases: [],
+      kits: [],
+      warning: "The configured Font Awesome API token could not be exchanged.",
+    } satisfies FontAwesomeConfiguration);
+
+    const element = document.createElement("font-awesome-icon-picker-policy-editor");
+    element.value = { ...defaultPolicy, catalogSource: "kit" };
+    document.body.append(element);
+
+    await vi.waitFor(() => {
+      expect(element.shadowRoot?.textContent).toContain("The configured Font Awesome API token could not be exchanged.");
+    });
+
+    expect(element.shadowRoot?.textContent).toContain("Example app settings");
+    expect(element.shadowRoot?.textContent).not.toContain("Choose a Kit");
+    expect(element.shadowRoot?.textContent).not.toContain("Allowed families / packs");
   });
 });

@@ -6,6 +6,16 @@ import { UMB_MODAL_MANAGER_CONTEXT, type UmbModalManagerContext } from "@umbraco
 import { defaultPolicy, getConfiguration, normalizePolicy, type FontAwesomeConfiguration, type SelectionPolicy } from "./api.js";
 import { ICON_PICKER_MODAL } from "./picker-modal.js";
 
+const proKitConfigurationExample = `{
+  "Koben": {
+    "FontAwesomeIconPicker": {
+      "ApiToken": "YOUR_FONT_AWESOME_API_TOKEN"
+    }
+  }
+}`;
+
+const readmeUrl = "https://github.com/KOBENDigital/Koben.Umbraco.IconPicker.FontAwesome/blob/v17/main/README.md#server-configuration";
+
 @customElement("font-awesome-icon-picker-policy-editor")
 export default class FontAwesomeIconPickerPolicyEditorElement extends UmbLitElement implements UmbPropertyEditorUiElement {
   @state() private _value: SelectionPolicy = { ...defaultPolicy };
@@ -75,6 +85,8 @@ export default class FontAwesomeIconPickerPolicyEditorElement extends UmbLitElem
   render() {
     const freeReleases = this._configuration?.freeReleases ?? [];
     const kits = this._configuration?.kits ?? [];
+    const requiresProKitConfiguration = this._value.catalogSource === "kit" && this._configuration?.proKitConfigurationAvailable === false;
+    const proKitConfigurationMessage = this._configuration?.warning ?? "Configure an API token to use Font Awesome Pro Kits.";
     return html`
       <div class="policy">
         <label>
@@ -85,7 +97,16 @@ export default class FontAwesomeIconPickerPolicyEditorElement extends UmbLitElem
           </select>
         </label>
 
-        ${this._value.catalogSource === "free"
+        ${requiresProKitConfiguration
+          ? html`<section class="pro-configuration" role="alert">
+              <p>
+                ${proKitConfigurationMessage}
+                <a href=${readmeUrl} target="_blank" rel="noopener noreferrer">Read the setup instructions</a>.
+              </p>
+              <h3>Example app settings</h3>
+              <pre><code>${proKitConfigurationExample}</code></pre>
+            </section>`
+          : this._value.catalogSource === "free"
           ? html`<label>
               <span>Catalog release</span>
               <select .value=${String(this._value.releaseMajor)} @change=${(event: Event) => this.#update({ releaseMajor: (event.target as HTMLSelectElement).value === "6" ? 6 : 7 })}>
@@ -104,24 +125,24 @@ export default class FontAwesomeIconPickerPolicyEditorElement extends UmbLitElem
               </select>
             </label>`}
 
-        ${this._configuration?.warning ? html`<uui-tag color="warning">${this._configuration.warning}</uui-tag>` : nothing}
+        ${this._configuration?.proKitConfigurationAvailable && this._configuration.warning ? html`<uui-tag color="warning">${this._configuration.warning}</uui-tag>` : nothing}
         ${this._error ? html`<uui-tag color="danger">${this._error}</uui-tag>` : nothing}
 
-        <label>
+        ${requiresProKitConfiguration ? nothing : html`<label>
           <span>Allowed families / packs</span>
           <uui-input label="Allowed families or packs" placeholder="classic, sharp, duotone" .value=${this._value.families.join(", ")}
             @change=${(event: Event) => this.#update({ families: this.#csv((event.target as HTMLInputElement).value) })}></uui-input>
           <small>Comma-separated. Leave empty to allow every family available in the catalog.</small>
-        </label>
+        </label>`}
 
-        <label>
+        ${requiresProKitConfiguration ? nothing : html`<label>
           <span>Allowed styles</span>
           <uui-input label="Allowed styles" placeholder="solid, regular, semibold" .value=${this._value.styles.join(", ")}
             @change=${(event: Event) => this.#update({ styles: this.#csv((event.target as HTMLInputElement).value) })}></uui-input>
           <small>Comma-separated. Leave empty to allow every style available in the catalog.</small>
-        </label>
+        </label>`}
 
-        <label>
+        ${requiresProKitConfiguration ? nothing : html`<label>
           <span>Icon allowlist</span>
           <uui-button look="secondary" label="Choose allowed icons" @click=${this.#chooseAllowedIcons}>
             Choose allowed icons (${this._value.allowedIcons.length || "unrestricted"})
@@ -130,9 +151,9 @@ export default class FontAwesomeIconPickerPolicyEditorElement extends UmbLitElem
             .value=${this._value.allowedIcons.map((item) => `${item.source}:${item.name}`).join("\n")}
             @change=${(event: Event) => this.#update({ allowedIcons: this.#identities((event.target as HTMLTextAreaElement).value) })}></uui-textarea>
           <small>One <code>official:name</code> or <code>custom:name</code> identity per line. Leave empty for no icon allowlist.</small>
-        </label>
+        </label>`}
 
-        ${this._value.catalogSource === "kit"
+        ${this._value.catalogSource === "kit" && !requiresProKitConfiguration
           ? html`<div class="checks">
               <uui-checkbox label="Include official icons" .checked=${this._value.includeOfficial} @change=${(event: Event) => this.#update({ includeOfficial: (event.target as HTMLInputElement).checked })}>Include official icons</uui-checkbox>
               <uui-checkbox label="Include custom uploaded icons" .checked=${this._value.includeCustom} @change=${(event: Event) => this.#update({ includeCustom: (event.target as HTMLInputElement).checked })}>Include custom uploaded icons</uui-checkbox>
@@ -152,6 +173,10 @@ export default class FontAwesomeIconPickerPolicyEditorElement extends UmbLitElem
     uui-input, uui-textarea { width: 100%; }
     small { color: var(--uui-color-text-alt); }
     .checks { display: grid; gap: var(--uui-size-space-4); }
+    .pro-configuration { display: grid; gap: var(--uui-size-space-3); padding: var(--uui-size-space-5); border-left: 4px solid var(--uui-color-warning); background: var(--uui-color-surface-alt); }
+    .pro-configuration p, .pro-configuration h3 { margin: 0; }
+    .pro-configuration a { color: inherit; font-weight: 700; }
+    pre { margin: 0; overflow-x: auto; padding: var(--uui-size-space-4); border-radius: var(--uui-border-radius); background: var(--uui-color-surface); }
   `;
 }
 

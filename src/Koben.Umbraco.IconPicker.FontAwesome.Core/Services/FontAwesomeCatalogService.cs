@@ -50,7 +50,7 @@ internal sealed class FontAwesomeCatalogService : IFontAwesomeCatalogService
 
 		if (string.IsNullOrWhiteSpace(_options.ApiToken))
 		{
-			return new(false, releases, [], "Configure an API token to use Font Awesome Pro Kits.");
+			return new(false, false, releases, [], "Configure an API token to use Font Awesome Pro Kits.");
 		}
 
 		try
@@ -59,12 +59,12 @@ internal sealed class FontAwesomeCatalogService : IFontAwesomeCatalogService
 					$"{FontAwesomeIconPickerConstants.CacheKeyPrefix}:kits",
 					async () => (IReadOnlyCollection<FontAwesomeKitResponse>?)await _apiClient.GetKitsAsync(cancellationToken),
 					TimeSpan.FromMinutes(_options.FreshCacheMinutes)) ?? [];
-			return new(true, releases, kits);
+			return new(true, true, releases, kits);
 		}
 		catch (FontAwesomeApiException exception)
 		{
 			_logger.LogWarning(exception, "Font Awesome Kit metadata could not be refreshed.");
-			return new(true, releases, [], exception.PublicMessage);
+			return new(true, false, releases, [], exception.PublicMessage);
 		}
 	}
 
