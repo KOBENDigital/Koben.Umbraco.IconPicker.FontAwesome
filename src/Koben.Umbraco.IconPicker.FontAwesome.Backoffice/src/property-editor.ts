@@ -116,10 +116,10 @@ export default class FontAwesomeIconPickerPropertyEditorElement extends UmbLitEl
     #add-icon, uui-ref-list { width: 100%; }
     .selected-icon { border: 1px solid var(--uui-color-border); border-radius: var(--uui-border-radius); }
     .selected-icon:hover { border-color: var(--uui-color-border-emphasis); }
-    .icon-preview { width: 2rem; height: 2rem; display: grid; place-items: center; font-size: 1.5rem; }
+    .icon-preview { --icon-preview-size: 1.5rem; width: 2rem; height: 2rem; display: grid; place-items: center; font-size: 1.5rem; }
     .icon-preview svg,
     .icon-preview > font-awesome-free-preview,
-    .icon-preview > font-awesome-kit-preview { width: 100%; height: 100%; }
+    .icon-preview > font-awesome-kit-preview { width: var(--icon-preview-size); height: var(--icon-preview-size); }
     .empty, .help { color: var(--uui-color-text-alt); }
     .help { margin: var(--uui-size-space-3) 0 0; }
   `;

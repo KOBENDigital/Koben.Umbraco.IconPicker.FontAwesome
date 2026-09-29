@@ -2,6 +2,7 @@ import { icon, type IconDefinition, type IconPack } from "@fortawesome/fontaweso
 import { fas } from "fa7-free-solid";
 import { far } from "fa7-free-regular";
 import { fab } from "fa7-free-brands";
+import { normalizePreviewMarkup } from "./preview-markup.js";
 
 const packs: Record<string, IconPack> = { solid: fas, regular: far, brands: fab };
 const definitions = Object.fromEntries(
@@ -16,7 +17,7 @@ export const renderIconMarkup = (iconClass: string) => {
   const name = classes.find((value) => value.startsWith("fa-") && !variantClasses.has(value))?.slice(3);
   const style = classes.includes("fa-brands") ? "brands" : classes.includes("fa-regular") ? "regular" : "solid";
   const definition = name ? definitions[style]?.get(name) : undefined;
-  return definition ? icon(definition).html.join("") : fallback;
+  return definition ? normalizePreviewMarkup(icon(definition).html.join("")) : fallback;
 };
 
 const variantClasses = new Set([

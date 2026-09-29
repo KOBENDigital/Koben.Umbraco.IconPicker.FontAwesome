@@ -8,6 +8,7 @@ import {
   unsafeHTML,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
+import { normalizePreviewMarkup, normalizePreviewSvg } from "./preview-markup.js";
 
 @customElement("font-awesome-free-preview")
 class FontAwesomeFreePreviewElement extends UmbLitElement {
@@ -39,20 +40,33 @@ class FontAwesomeFreePreviewElement extends UmbLitElement {
   static styles = css`
     :host {
       display: block;
-      width: 100%;
-      height: 100%;
+      width: var(--icon-preview-size, 100%);
+      height: var(--icon-preview-size, 100%);
     }
 
     svg {
-      display: block;
-      width: 100%;
-      height: 100%;
+      box-sizing: border-box !important;
+      display: block !important;
+      height: 100% !important;
+      inset: auto !important;
+      margin: 0 !important;
+      max-height: 100% !important;
+      max-width: 100% !important;
+      position: static !important;
+      transform: none !important;
+      vertical-align: baseline !important;
+      width: 100% !important;
     }
 
-    /* Kit runtime CSS sizes .svg-inline--fa in ems; previews must fill their host box. */
-    svg.svg-inline--fa {
-      width: 100%;
-      height: 100%;
+    /* Preserve Font Awesome's duotone path treatment after removing SVG utility classes. */
+    svg .fa-primary {
+      fill: var(--fa-primary-color, currentColor);
+      opacity: var(--fa-primary-opacity, 1);
+    }
+
+    svg .fa-secondary {
+      fill: var(--fa-secondary-color, currentColor);
+      opacity: var(--fa-secondary-opacity, 0.4);
     }
   `;
 }
@@ -168,13 +182,17 @@ class FontAwesomeKitPreviewElement extends UmbLitElement {
           ? runtime?.icon?.(definition)?.html?.join("")
           : undefined;
         if (markup) {
-          this._markup = markup;
+          this._markup = normalizePreviewMarkup(markup);
           return;
         }
 
         await this.updateComplete;
         await runtime?.dom?.i2svg?.({ node: this.renderRoot });
-        if (this.renderRoot.querySelector("svg")) return;
+        const renderedSvg = this.renderRoot.querySelector<SVGSVGElement>("svg");
+        if (renderedSvg) {
+          normalizePreviewSvg(renderedSvg);
+          return;
+        }
         await delay(kitRenderRetryDelayMs);
       }
     } catch {

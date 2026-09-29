@@ -12,6 +12,8 @@ describe("free icon preview rendering", () => {
     const markup = renderV6IconMarkup(iconClass);
 
     expect(markup).toContain(`data-icon=\"${iconName}\"`);
+    expect(markup).toContain('class="font-awesome-preview-svg"');
+    expect(markup).not.toContain(`class="svg-inline--fa fa-${iconName}"`);
     expect(markup).not.toContain("<rect");
   });
 

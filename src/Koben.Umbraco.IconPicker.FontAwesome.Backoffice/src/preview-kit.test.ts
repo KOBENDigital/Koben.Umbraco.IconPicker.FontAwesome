@@ -56,6 +56,27 @@ describe("Font Awesome Kit preview", () => {
     expect(element.shadowRoot?.querySelector("style[data-kit-runtime]")?.textContent).toContain(".svg-inline--fa");
   });
 
+  it("isolates Kit icon CSS classes that are also Font Awesome layout utilities", async () => {
+    const token = "test-kit-stack";
+    const script = document.createElement("script");
+    script.id = `font-awesome-kit-${token}`;
+    script.dataset.loaded = "true";
+    document.head.append(script);
+    window.FontAwesome = {
+      findIconDefinition: vi.fn(() => ({ iconName: "stack" })),
+      icon: vi.fn(() => ({ html: ['<svg class="svg-inline--fa fa-stack" data-icon="stack"></svg>'] })),
+    };
+
+    const element = document.createElement("font-awesome-kit-preview");
+    element.iconClass = "fa-solid fa-stack";
+    element.kitToken = token;
+    element.prefix = "fas";
+    document.body.append(element);
+
+    await vi.waitFor(() => expect(element.shadowRoot?.querySelector('svg[data-icon="stack"]')).not.toBeNull());
+    expect(element.shadowRoot?.querySelector("svg")?.getAttribute("class")).toBe("font-awesome-preview-svg");
+  });
+
   it("renders a persisted variant without an explicit prefix or a CSS request", async () => {
     const token = "test-kit-persisted";
     const script = document.createElement("script");

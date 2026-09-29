@@ -2,6 +2,7 @@ import {
   css,
   customElement,
   html,
+  keyed,
   nothing,
   property,
   state,
@@ -45,6 +46,8 @@ export default class FontAwesomeIconPickerModalElement
   @state() private _page = 1;
   @state() private _families = new Set<string>();
   @state() private _styles = new Set<string>();
+  @state() private _availableFamilies = new Set<string>();
+  @state() private _availableStyles = new Set<string>();
   @state() private _response?: IconSearchResponse;
   @state() private _loading = false;
   @state() private _error?: string;
@@ -53,6 +56,7 @@ export default class FontAwesomeIconPickerModalElement
 
   #abort?: AbortController;
   #debounce?: number;
+  #searchRequest = 0;
   #initializedData?: IconPickerModalData;
 
   connectedCallback(): void {
@@ -90,12 +94,13 @@ export default class FontAwesomeIconPickerModalElement
   async #search() {
     const policy = this.data?.policy;
     if (!policy) return;
+    const request = ++this.#searchRequest;
     this.#abort?.abort();
     this.#abort = new AbortController();
     this._loading = true;
     this._error = undefined;
     try {
-      this._response = await searchIcons(
+      const response = await searchIcons(
         {
           catalogSource: policy.catalogSource,
           releaseMajor: policy.releaseMajor,
@@ -111,12 +116,17 @@ export default class FontAwesomeIconPickerModalElement
         },
         this.#abort.signal,
       );
+      if (request !== this.#searchRequest) return;
+      this._response = response;
+      this._availableFamilies = new Set([...this._availableFamilies, ...response.availableFamilies]);
+      this._availableStyles = new Set([...this._availableStyles, ...response.availableStyles]);
     } catch (error) {
+      if (request !== this.#searchRequest) return;
       if ((error as Error).name !== "AbortError") {
         this._error = error instanceof Error ? error.message : "The icon catalog could not be loaded.";
       }
     } finally {
-      this._loading = false;
+      if (request === this.#searchRequest) this._loading = false;
     }
   }
 
@@ -127,11 +137,23 @@ export default class FontAwesomeIconPickerModalElement
     this.#debounce = window.setTimeout(() => void this.#search(), 300);
   }
 
-  #toggleFilter(kind: "family" | "style", value: string) {
-    const next = new Set(kind === "family" ? this._families : this._styles);
+  #selectFamily(value: string) {
+    if (this._families.size === (value ? 1 : 0) && (!value || this._families.has(value))) return;
+    this._families = value ? new Set([value]) : new Set();
+    this._page = 1;
+    void this.#search();
+  }
+
+  #familyChanged(event: Event) {
+    if (event.target !== event.currentTarget) return;
+    const value = (event.currentTarget as unknown as { value: unknown } | null)?.value;
+    this.#selectFamily(typeof value === "string" ? value : "");
+  }
+
+  #toggleStyle(value: string) {
+    const next = new Set(this._styles);
     next.has(value) ? next.delete(value) : next.add(value);
-    if (kind === "family") this._families = next;
-    else this._styles = next;
+    this._styles = next;
     this._page = 1;
     void this.#search();
   }
@@ -170,20 +192,44 @@ export default class FontAwesomeIconPickerModalElement
       : renderKitIcon(iconClass, policy?.kitToken, prefix);
   }
 
+  #previewVariant(icon: IconResult) {
+    return icon.variants.find((variant) => variant.family === "classic" && variant.style === "solid")
+      ?? icon.variants.find((variant) => variant.family === "classic")
+      ?? icon.variants[0]!;
+  }
+
   #renderFacet(title: string, values: string[], selected: Set<string>, kind: "family" | "style") {
-    if (!values.length) return nothing;
+    if (kind === "family") {
+      return html`
+        <fieldset>
+          <legend>${title}</legend>
+          ${values.length
+            ? html`
+                <uui-radio-group name="icon-family" @change=${this.#familyChanged}>
+                  <uui-radio label="All families" value="" .checked=${selected.size === 0} @click=${() => this.#selectFamily("")}>All families</uui-radio>
+                  ${values.map(
+                    (value) => html`<uui-radio label=${value} value=${value} .checked=${selected.has(value)} @click=${() => this.#selectFamily(value)}>${value}</uui-radio>`,
+                  )}
+                </uui-radio-group>
+              `
+            : html`<p class="facet-empty">No matching icon families.</p>`}
+        </fieldset>
+      `;
+    }
     return html`
       <fieldset>
         <legend>${title}</legend>
-        ${values.map(
-          (value) => html`
-            <uui-checkbox
-              label=${value}
-              .checked=${selected.has(value)}
-              @change=${() => this.#toggleFilter(kind, value)}
-            >${value}</uui-checkbox>
-          `,
-        )}
+        ${values.length
+          ? values.map(
+              (value) => html`
+                <uui-checkbox
+                  label=${value}
+                  .checked=${selected.has(value)}
+                  @change=${() => this.#toggleStyle(value)}
+                >${value}</uui-checkbox>
+              `,
+            )
+          : html`<p class="facet-empty">No matching styles.</p>`}
       </fieldset>
     `;
   }
@@ -215,6 +261,13 @@ export default class FontAwesomeIconPickerModalElement
     `;
   }
 
+  #renderResultMetadata(icon: IconResult) {
+    const metadata: string[] = [];
+    if (this.data?.policy.catalogSource === "kit") metadata.push(icon.source);
+    if (icon.variants.length > 1) metadata.push(`${icon.variants.length} variants`);
+    return metadata.length ? html`<small>${metadata.join(" · ")}</small>` : nothing;
+  }
+
   #renderResults() {
     if (this._variantIcon) return this.#renderVariantStep();
     if (this._loading && !this._response) return html`<uui-loader-bar aria-label="Loading icons"></uui-loader-bar>`;
@@ -233,7 +286,9 @@ export default class FontAwesomeIconPickerModalElement
       <p class="count" aria-live="polite">${this._response.total} icons</p>
       <div class="icon-grid">
         ${this._response.items.map(
-          (icon) => html`
+          (icon) => {
+            const previewVariant = this.#previewVariant(icon);
+            return keyed(`${icon.source}:${icon.name}:${previewVariant.iconClass}`, html`
             <button
               class=${this._selected.has(icon.source + ":" + icon.name) ? "icon-card selected" : "icon-card"}
               type="button"
@@ -241,11 +296,12 @@ export default class FontAwesomeIconPickerModalElement
               aria-label=${(this.data?.multiple ? "Toggle " : "Choose ") + icon.label}
               aria-pressed=${this.data?.multiple ? String(this._selected.has(icon.source + ":" + icon.name)) : nothing}
             >
-              <span class="preview">${this.#renderPreview(icon.variants[0].iconClass, icon.variants[0].prefix)}</span>
+              <span class="preview">${this.#renderPreview(previewVariant.iconClass, previewVariant.prefix)}</span>
               <strong>${icon.label}</strong>
-              <small>${icon.source}${icon.variants.length > 1 ? ` · ${icon.variants.length} variants` : ""}</small>
+              ${this.#renderResultMetadata(icon)}
             </button>
-          `,
+          `);
+          },
         )}
       </div>
       ${totalPages > 1
@@ -274,14 +330,14 @@ export default class FontAwesomeIconPickerModalElement
             <uui-icon name="icon-search" slot="prepend"></uui-icon>
           </uui-input>
           <div class="chips" aria-label="Active filters">
-            ${[...this._families].map((value) => html`<uui-tag look="secondary" @click=${() => this.#toggleFilter("family", value)}>${value} ×</uui-tag>`)}
-            ${[...this._styles].map((value) => html`<uui-tag look="secondary" @click=${() => this.#toggleFilter("style", value)}>${value} ×</uui-tag>`)}
+            ${[...this._families].map((value) => html`<uui-tag look="secondary" @click=${() => this.#selectFamily("")}>${value} ×</uui-tag>`)}
+            ${[...this._styles].map((value) => html`<uui-tag look="secondary" @click=${() => this.#toggleStyle(value)}>${value} ×</uui-tag>`)}
           </div>
         </div>
         <div class="layout">
           <aside aria-label="Icon filters">
-            ${this.#renderFacet("Icon family", response?.availableFamilies ?? [], this._families, "family")}
-            ${this.#renderFacet("Style", response?.availableStyles ?? [], this._styles, "style")}
+            ${this.#renderFacet("Icon family", [...this._availableFamilies], this._families, "family")}
+            ${this.#renderFacet("Style", [...this._availableStyles], this._styles, "style")}
           </aside>
           <main>${this.#renderResults()}</main>
         </div>
@@ -307,12 +363,12 @@ export default class FontAwesomeIconPickerModalElement
     main { padding: var(--uui-size-layout-1); min-width: 0; }
     fieldset { border: 0; padding: 0; margin: 0 0 var(--uui-size-layout-1); display: grid; gap: var(--uui-size-space-3); }
     legend { font-weight: 700; margin-bottom: var(--uui-size-space-4); }
+    .facet-empty { color: var(--uui-color-text-alt); margin: 0; }
     .icon-grid, .variant-grid { display: grid; grid-template-columns: repeat(4, minmax(8rem, 1fr)); gap: var(--uui-size-space-4); }
     .icon-card { appearance: none; border: 1px solid var(--uui-color-border); border-radius: var(--uui-border-radius); background: var(--uui-color-surface); color: inherit; padding: var(--uui-size-layout-1); min-height: 10rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--uui-size-space-3); cursor: pointer; text-align: center; }
     .icon-card:hover, .icon-card:focus-visible { border-color: var(--uui-color-focus); box-shadow: 0 0 0 2px var(--uui-color-focus); outline: 0; }
     .icon-card.selected { border-color: var(--uui-color-selected); background: var(--uui-color-selected-emphasis); }
-    .preview { width: 2.5rem; height: 2.5rem; display: grid; place-items: center; font-size: 2rem; }
-    .preview svg { width: 100%; height: 100%; }
+    .preview { --icon-preview-size: 2rem; flex: 0 0 2.5rem; width: 2.5rem; height: 2.5rem; display: grid; place-items: center; font-size: 2rem; }
     .icon-card strong, .icon-card small, .icon-card code { max-width: 100%; overflow-wrap: anywhere; }
     .count { font-weight: 700; }
     .empty, .message { margin: var(--uui-size-layout-1); }
