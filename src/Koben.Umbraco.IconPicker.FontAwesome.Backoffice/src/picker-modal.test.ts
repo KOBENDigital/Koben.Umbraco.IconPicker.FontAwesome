@@ -84,6 +84,32 @@ describe("icon picker modal", () => {
     expect(element.shadowRoot?.textContent).not.toContain("official");
   });
 
+  it("enforces the Data Type family and style policy in searches and facets", async () => {
+    searchIconsMock.mockResolvedValue({
+      ...response,
+      availableFamilies: ["classic", "sharp", "duotone"],
+      availableStyles: ["light", "regular", "solid"],
+    });
+    const element = document.createElement("font-awesome-icon-picker-modal");
+    element.data = {
+      policy: {
+        ...defaultPolicy,
+        catalogSource: "kit",
+        kitToken: "test-kit",
+        families: ["classic", "sharp"],
+        styles: ["light", "solid"],
+      },
+    };
+
+    document.body.append(element);
+    await vi.waitFor(() => expect(searchIconsMock).toHaveBeenCalledOnce());
+
+    expect(searchIconsMock.mock.calls[0][0].families).toEqual(["classic", "sharp"]);
+    expect(searchIconsMock.mock.calls[0][0].styles).toEqual(["light", "solid"]);
+    expect(element.shadowRoot?.textContent).not.toContain("duotone");
+    expect(element.shadowRoot?.textContent).not.toContain("regular");
+  });
+
   it("keeps empty filter sections visible", async () => {
     searchIconsMock.mockResolvedValue({
       ...response,

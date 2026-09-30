@@ -108,8 +108,8 @@ export default class FontAwesomeIconPickerModalElement
           query: this._query,
           page: this._page,
           pageSize: 24,
-          families: [...this._families],
-          styles: [...this._styles],
+          families: this.#selectedOrAllowed(this._families, policy.families),
+          styles: this.#selectedOrAllowed(this._styles, policy.styles),
           allowedIcons: policy.allowedIcons,
           includeOfficial: policy.includeOfficial,
           includeCustom: policy.includeCustom,
@@ -118,8 +118,14 @@ export default class FontAwesomeIconPickerModalElement
       );
       if (request !== this.#searchRequest) return;
       this._response = response;
-      this._availableFamilies = new Set([...this._availableFamilies, ...response.availableFamilies]);
-      this._availableStyles = new Set([...this._availableStyles, ...response.availableStyles]);
+      this._availableFamilies = new Set([
+        ...this._availableFamilies,
+        ...this.#permittedFacetValues(response.availableFamilies, policy.families),
+      ]);
+      this._availableStyles = new Set([
+        ...this._availableStyles,
+        ...this.#permittedFacetValues(response.availableStyles, policy.styles),
+      ]);
     } catch (error) {
       if (request !== this.#searchRequest) return;
       if ((error as Error).name !== "AbortError") {
@@ -135,6 +141,16 @@ export default class FontAwesomeIconPickerModalElement
     this._page = 1;
     if (this.#debounce) window.clearTimeout(this.#debounce);
     this.#debounce = window.setTimeout(() => void this.#search(), 300);
+  }
+
+  #selectedOrAllowed(selected: Set<string>, allowed: string[]) {
+    return selected.size ? [...selected] : allowed;
+  }
+
+  #permittedFacetValues(values: string[], allowed: string[]) {
+    if (!allowed.length) return values;
+    const allowedValues = new Set(allowed.map((value) => value.toLowerCase()));
+    return values.filter((value) => allowedValues.has(value.toLowerCase()));
   }
 
   #selectFamily(value: string) {
