@@ -33,7 +33,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: npm
           cache-dependency-path: src/Koben.Umbraco.IconPicker.FontAwesome.Backoffice/package-lock.json
 
@@ -43,7 +43,7 @@ jobs:
           $packageVersion = "${{ github.ref_name }}"
 
           if ($packageVersion -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$') {
-            throw "Release tags must be valid NuGet versions, for example '17.0.0' or '17.1.0-preview.1'."
+            throw "Release tags must be valid NuGet versions, for example '18.0.0' or '18.1.0-preview.1'."
           }
 
           "PACKAGE_VERSION=$packageVersion" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8

@@ -1,4 +1,4 @@
-@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.HomePage>
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.HomePage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @{
 	Layout = null;
@@ -8,7 +8,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Font Awesome Icon Picker for Umbraco 17</title>
+	<title>Font Awesome Icon Picker for Umbraco 18</title>
 	<link rel="preconnect" href="https://cdn.jsdelivr.net" />
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
 	<script src="https://kit.fontawesome.com/a5b64be81e.js" crossorigin="anonymous"></script>
@@ -27,13 +27,13 @@
 <body>
 	<main class="container page py-5">
 		<article class="markdown-body">
-			<h1 class="mb-4">Font Awesome Icon Picker for Umbraco 17</h1>
-			<p>An Umbraco 17 property editor for selecting Font Awesome Free, Pro, and Kit custom icons. Editors search the Font Awesome catalog in the backoffice and the saved content value is a complete CSS class string, such as <code>fa-solid fa-house</code>.</p>
+			<h1 class="mb-4">Font Awesome Icon Picker for Umbraco 18</h1>
+			<p>An Umbraco 18 property editor for selecting Font Awesome Free, Pro, and Kit custom icons. Editors search the Font Awesome catalog in the backoffice and the saved content value is a complete CSS class string, such as <code>fa-solid fa-house</code>.</p>
 			<p>Non-Classic families include the family class, for example <code>fa-sharp fa-solid fa-house</code>.</p>
 
 			<h2 class="mt-5">TL;DR</h2>
 			<ol>
-				<li>Install <code>Koben.Umbraco.IconPicker.FontAwesome</code> and restart your Umbraco 17 application.</li>
+				<li>Install <code>Koben.Umbraco.IconPicker.FontAwesome</code> and restart your Umbraco 18 application.</li>
 				<li>In <strong>Settings &gt; Data Types</strong>, create a data type using <strong>Font Awesome Icon Picker</strong>. Select <strong>Font Awesome Free</strong> and a matching release to use it without credentials.</li>
 				<li>Load matching Font Awesome assets on the public site and render the saved class string.</li>
 				<li>For a <strong>Pro Kit</strong>, configure the Font Awesome account API token server-side, restart the application, then select a published Kit in the data type.</li>
@@ -64,20 +64,20 @@
 
 			<h2 class="mt-5">Requirements</h2>
 			<ul>
-				<li>Umbraco CMS 17 and .NET 10.</li>
+				<li>Umbraco CMS 18 and .NET 10.</li>
 				<li>A Font Awesome API token only when using Pro Kits.</li>
 				<li>A published hosted Font Awesome Kit for Pro and custom-icon previews.</li>
 			</ul>
 			<p>Font Awesome Free browsing does not require a token.</p>
 
 			<h2 class="mt-5">Run the included Web project</h2>
-			<p>The repository includes <code>src/Web</code>, a small Umbraco 17 sample site. Its uSync export creates the Free 6.7.2, Free 7.2.0, and Pro Kit data types, a Home Page document type and template, and a published Home page. It deliberately does not include a Font Awesome account token or a Kit ID.</p>
+			<p>The repository includes <code>src/Web</code>, a small Umbraco 18 sample site. Its uSync export creates the Free 6.7.2, Free 7.2.0, and Pro Kit data types, a Home Page document type and template, and a published Home page. It deliberately does not include a Font Awesome account token or a Kit ID.</p>
 			<p>Configure the database connection string and, only when testing Pro Kits, the Font Awesome account API token using the Web project's existing User Secrets ID:</p>
 <pre><code>dotnet user-secrets set --project src/Web "ConnectionStrings:umbracoDbDSN" "Server=(localdb)\MSSQLLocalDB;Database=FontAwesomeIconPicker;Integrated Security=True;TrustServerCertificate=True"
 dotnet user-secrets set --project src/Web "Koben:FontAwesomeIconPicker:ApiToken" "YOUR_FONT_AWESOME_API_TOKEN"
 
 dotnet run --project src/Web/Web.csproj</code></pre>
-			<p>On first boot, complete the Umbraco installer if shown and then sign in to the backoffice. uSync imports the sample schema and content from <code>src/Web/uSync/v17</code>. Open the Pro Kit data type and select a published Kit belonging to the same Font Awesome account as the configured API token. This sample view uses a fixed Kit embed for demonstration; replace it with the embed for your selected Kit before deployment.</p>
+			<p>On first boot, complete the Umbraco installer if shown and then sign in to the backoffice. uSync imports the sample schema and content from <code>src/Web/uSync/v18</code>. Open the Pro Kit data type and select a published Kit belonging to the same Font Awesome account as the configured API token. This sample view uses a fixed Kit embed for demonstration; replace it with the embed for your selected Kit before deployment.</p>
 
 			<h2 class="mt-5">Server configuration</h2>
 			<p>The Font Awesome account API token belongs to the installation, not to a data type. Store it in user secrets, an environment variable, or a secret store.</p>

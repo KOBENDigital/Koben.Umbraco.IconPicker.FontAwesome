@@ -1,6 +1,6 @@
-# Font Awesome Icon Picker for Umbraco 17
+# Font Awesome Icon Picker for Umbraco 18
 
-An Umbraco 17 property editor for selecting Font Awesome Free, Pro, and Kit custom icons. Editors search the Font Awesome catalog in the backoffice and the saved content value is a complete CSS class string:
+An Umbraco 18 property editor for selecting Font Awesome Free, Pro, and Kit custom icons. Editors search the Font Awesome catalog in the backoffice and the saved content value is a complete CSS class string:
 
 ```text
 fa-solid fa-house
@@ -14,7 +14,7 @@ fa-sharp fa-solid fa-house
 
 ## TL;DR
 
-1. Install the package and restart your Umbraco 17 application:
+1. Install the package and restart your Umbraco 18 application:
 
    ```powershell
    dotnet add package Koben.Umbraco.IconPicker.FontAwesome
@@ -41,7 +41,7 @@ See [Server configuration](#server-configuration) and [Pro Kit configuration](#p
 
 ## Requirements
 
-- Umbraco CMS 17
+- Umbraco CMS 18
 - .NET 10
 - A Font Awesome API token only when using Pro Kits
 - A published hosted Font Awesome Kit for Pro and custom-icon previews
@@ -64,7 +64,7 @@ Create a Data Type in Umbraco and choose **Font Awesome Icon Picker**.
 
 ## Run the included Web project
 
-The repository includes `src/Web`, a small Umbraco 17 sample site for trying the picker. It references the package projects directly and includes a uSync export that creates the following on a new installation:
+The repository includes `src/Web`, a small Umbraco 18 sample site for trying the picker. It references the package projects directly and includes a uSync export that creates the following on a new installation:
 
 - Font Awesome Icon Picker data types for Free 6.7.2, Free 7.2.0, and Pro Kit.
 - A **Home Page** document type and template.
@@ -117,7 +117,7 @@ Replace the two placeholder values through user secrets, environment variables, 
 dotnet run --project src/Web/Web.csproj
 ```
 
-Open the HTTPS URL reported by `dotnet run`, complete the Umbraco installer if it is shown, then sign in to the backoffice. On the first boot uSync imports the sample schema and content from `src/Web/uSync/v17`. If the site was already running before the export was present, use the uSync dashboard to import the checked-in files instead.
+Open the HTTPS URL reported by `dotnet run`, complete the Umbraco installer if it is shown, then sign in to the backoffice. On the first boot uSync imports the sample schema and content from `src/Web/uSync/v18`. If the site was already running before the export was present, use the uSync dashboard to import the checked-in files instead.
 
 ### Complete the Pro Kit data type
 

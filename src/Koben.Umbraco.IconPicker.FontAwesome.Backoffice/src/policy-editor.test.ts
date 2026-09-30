@@ -97,7 +97,7 @@ describe("selection policy editor", () => {
     expect(element.shadowRoot?.textContent).not.toContain("Choose a Kit");
     expect(element.shadowRoot?.textContent).not.toContain("Allowed families / packs");
     expect(element.shadowRoot?.querySelector("a")?.href).toBe(
-      "https://github.com/KOBENDigital/Koben.Umbraco.IconPicker.FontAwesome/blob/v17/main/README.md#server-configuration",
+      "https://github.com/KOBENDigital/Koben.Umbraco.IconPicker.FontAwesome/blob/main/README.md#server-configuration",
     );
   });
 

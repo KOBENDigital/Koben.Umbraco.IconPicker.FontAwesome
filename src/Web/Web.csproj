@@ -19,7 +19,7 @@
 	<PropertyGroup>
 		<!-- Razor files are needed for the backoffice to work correctly -->
 		<CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
-		<UserSecretsId>62c1cab2-fe7e-4f4e-a830-4ff2387ad1df</UserSecretsId>
+		<UserSecretsId>cfd4406f-e659-4b35-92db-f2d691e28893</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Koben.Umbraco.IconPicker.FontAwesome.Core\Koben.Umbraco.IconPicker.FontAwesome.Core.csproj" />

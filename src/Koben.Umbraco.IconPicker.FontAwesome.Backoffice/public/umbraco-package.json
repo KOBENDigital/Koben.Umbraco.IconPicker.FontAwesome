@@ -2,7 +2,7 @@
 	"$schema": "../../umbraco-package-schema.json",
 	"id": "Koben.Umbraco.IconPicker.FontAwesome",
 	"name": "Font Awesome Icon Picker",
-	"version": "17.0.0",
+	"version": "18.0.0",
 	"extensions": [
 		{
 			"type": "bundle",

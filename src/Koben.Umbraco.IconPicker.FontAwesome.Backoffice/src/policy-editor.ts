@@ -14,7 +14,7 @@ const proKitConfigurationExample = `{
   }
 }`;
 
-const readmeUrl = "https://github.com/KOBENDigital/Koben.Umbraco.IconPicker.FontAwesome/blob/v17/main/README.md#server-configuration";
+const readmeUrl = "https://github.com/KOBENDigital/Koben.Umbraco.IconPicker.FontAwesome/blob/main/README.md#server-configuration";
 
 @customElement("font-awesome-icon-picker-policy-editor")
 export default class FontAwesomeIconPickerPolicyEditorElement extends UmbLitElement implements UmbPropertyEditorUiElement {
